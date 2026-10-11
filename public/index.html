@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Margen DataBridge | Lector Inteligente de Excel & WhatsApp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Header principal -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="brand-logo">
+        <span class="logo-symbol">%</span>
+      </div>
+      <div>
+        <div class="brand-title">Margen <span class="badge-sub">DataBridge</span></div>
+        <div class="brand-subtitle">Inteligencia de Datos & Costos para PyMEs</div>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <a href="/docs" target="_blank" class="btn btn-outline btn-sm">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+        Swagger API Docs
+      </a>
+      <button id="btnQuickSample" class="btn btn-primary btn-sm">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+        Cargar Caso Real Demo
+      </button>
+    </div>
+  </header>
+
+  <!-- Value Proposition Banner de Margen -->
+  <section class="banner-manifesto">
+    <div class="manifesto-content">
+      <div class="manifesto-tag">Metodología de Gestión</div>
+      <p class="manifesto-text">
+        <strong>"Vender más no siempre es ganar más."</strong> Esta herramienta interpreta las listas caóticas de Excel y WhatsApp de tus clientes y proveedores, mapea los costos reales y detecta de inmediato qué productos te dejan plata y cuáles te la están sacando.
+      </p>
+    </div>
+  </section>
+
+  <!-- Pestañas de Navegación -->
+  <main class="main-container">
+    <nav class="tabs-nav">
+      <button class="tab-btn active" data-tab="tab-excel">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        1. Cargar Excel / CSV
+      </button>
+      <button class="tab-btn" data-tab="tab-wpp">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+        2. Pegar de WhatsApp
+      </button>
+      <button class="tab-btn" data-tab="tab-dashboard">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+        3. Auditoría & Tablero de Márgenes
+        <span id="tabProductCountBadge" class="badge-counter">0</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-api">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+        4. API & Integración con Margen App
+      </button>
+    </nav>
+
+    <!-- TAB 1: EXCEL / CSV -->
+    <div id="tab-excel" class="tab-pane active">
+      <div class="card upload-card">
+        <div class="dropzone" id="excelDropzone">
+          <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" hidden>
+          <div class="dropzone-icon">
+            <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          </div>
+          <h3>Arrastra tu archivo Excel (.xlsx, .xls) o CSV aquí</h3>
+          <p class="dropzone-desc">Soporta listas de proveedores, exportaciones de AFIP/ERP y planillas sin formato estricto.</p>
+          <div class="dropzone-actions">
+            <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Seleccionar Archivo</button>
+            <a href="/samples/ejemplo_lista_precios_pyme.xlsx" download class="btn btn-ghost btn-sm">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Descargar Excel de Ejemplo
+            </a>
+          </div>
+        </div>
+
+        <!-- Opciones avanzadas de lectura -->
+        <div class="card-footer-controls">
+          <div class="control-group">
+            <label>Umbral Mínimo de Margen Saludable (%):</label>
+            <input type="number" id="minHealthyMarginExcel" value="15" min="0" max="100" class="input-number">
+          </div>
+          <div id="sheetSelectorContainer" class="control-group" style="display:none;">
+            <label>Hoja del Excel:</label>
+            <select id="sheetSelect" class="select-field"></select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mapeo Inteligente de Columnas (Aparece tras cargar archivo) -->
+      <div id="mappingSection" class="card mt-4" style="display: none;">
+        <div class="card-header">
+          <div>
+            <h3>Detección Inteligente de Columnas</h3>
+            <p class="text-muted">El sistema asoció automáticamente las columnas de tu Excel. Revisa y ajusta si es necesario:</p>
+          </div>
+          <button id="btnApplyMapping" class="btn btn-primary btn-sm">Recalcular con Este Mapeo</button>
+        </div>
+        <div class="mapping-grid" id="mappingGrid"></div>
+      </div>
+    </div>
+
+    <!-- TAB 2: WHATSAPP / TEXTO -->
+    <div id="tab-wpp" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Ingesta Rápida desde WhatsApp</h3>
+            <p class="text-muted">Pega el texto del chat, mensaje de proveedor o lista informal compartida por WhatsApp.</p>
+          </div>
+          <button id="btnLoadWppSample" class="btn btn-ghost btn-sm">Cargar Mensaje de Ejemplo</button>
+        </div>
+        <div class="wpp-body">
+          <textarea id="wppInput" class="wpp-textarea" placeholder="Pega aquí el mensaje de WhatsApp. Ej:
+[10/10/24, 14:20] Proveedor: Hola! Lista de hoy:
+- Coca Cola 1.5L: $1.450 (Costo: $980) x 24 un
+- Yerba Playadito 500g: $2.100 (Costo: $1.650) stock 40
+- Aceite Natura Girasol 900ml: $1.750 (Costo: $1.820)
+..."></textarea>
+          
+          <div class="wpp-options-bar">
+            <div class="control-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="wppDefaultIsCost">
+                Si sólo hay un importe, interpretarlo como Costo de Compra
+              </label>
+            </div>
+            <div class="control-group">
+              <label>Markup / Margen sugerido si falta precio de venta (%):</label>
+              <input type="number" id="wppMarkup" value="35" min="0" max="200" class="input-number">
+            </div>
+            <button id="btnProcessWpp" class="btn btn-primary">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
+              Interpretar y Calcular Márgenes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: AUDITORÍA & TABLERO -->
+    <div id="tab-dashboard" class="tab-pane">
+      <!-- Tarjetas de KPIs Financieros -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Productos Procesados</div>
+          <div class="kpi-value" id="kpiTotalProducts">0</div>
+          <div class="kpi-sub" id="kpiTotalUnits">0 unidades en stock</div>
+        </div>
+
+        <div class="kpi-card highlight-green">
+          <div class="kpi-label">Margen Bruto Promedio</div>
+          <div class="kpi-value text-green" id="kpiAvgMargin">0%</div>
+          <div class="kpi-sub" id="kpiAvgMarkup">Markup prom: 0%</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">Capital Inmovilizado (Costo)</div>
+          <div class="kpi-value" id="kpiCapitalLocked">$ 0</div>
+          <div class="kpi-sub" id="kpiPotentialRevenue">Venta potencial: $ 0</div>
+        </div>
+
+        <div class="kpi-card highlight-red">
+          <div class="kpi-label">🚨 Productos a Pérdida</div>
+          <div class="kpi-value text-red" id="kpiLossCount">0</div>
+          <div class="kpi-sub">Costo de compra superior al precio</div>
+        </div>
+
+        <div class="kpi-card highlight-yellow">
+          <div class="kpi-label">⚠️ Margen Crítico (< 15%)</div>
+          <div class="kpi-value text-yellow" id="kpiCriticalCount">0</div>
+          <div class="kpi-sub">Riesgo financiero ante inflación</div>
+        </div>
+      </div>
+
+      <!-- Alerta visual de pérdidas si existen -->
+      <div id="alertLossContainer" class="alert-box alert-danger" style="display:none;">
+        <div class="alert-icon">⚠️</div>
+        <div>
+          <strong>¡Atención! Hay productos vendiéndose por debajo de su costo de reposición.</strong>
+          <p id="alertLossText">Revisa la lista a continuación para corregir el precio o negociar con el proveedor.</p>
+        </div>
+      </div>
+
+      <!-- Barra de herramientas de la tabla -->
+      <div class="table-toolbar">
+        <div class="search-box">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="searchInput" placeholder="Buscar por producto, código o categoría...">
+        </div>
+
+        <div class="filter-pills">
+          <button class="pill-btn active" data-filter="ALL">Todos (<span id="countAll">0</span>)</button>
+          <button class="pill-btn pill-danger" data-filter="LOSS">A Pérdida (<span id="countLoss">0</span>)</button>
+          <button class="pill-btn pill-warning" data-filter="CRITICAL">Críticos (<span id="countCritical">0</span>)</button>
+          <button class="pill-btn pill-success" data-filter="HEALTHY">Saludables (<span id="countHealthy">0</span>)</button>
+        </div>
+
+        <div class="table-actions">
+          <button id="btnExportExcel" class="btn btn-secondary btn-sm">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Exportar Excel Limpio
+          </button>
+          <button id="btnCopyJson" class="btn btn-outline btn-sm">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            Copiar JSON para Margen
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabla de Productos con Cálculo en Vivo -->
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Descripción</th>
+              <th>Rubro</th>
+              <th>Costo ($)</th>
+              <th>P. Venta ($)</th>
+              <th>Margen ($)</th>
+              <th>% Margen</th>
+              <th>% Markup</th>
+              <th>Stock</th>
+              <th>Capital ($)</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="productsTableBody">
+            <tr>
+              <td colspan="11" class="text-center py-8 text-muted">
+                No hay productos cargados aún. Carga un Excel o pega un mensaje de WhatsApp para comenzar.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 4: API & INTEGRACIÓN -->
+    <div id="tab-api" class="tab-pane">
+      <div class="api-integration-grid">
+        <!-- Tarjeta de Sincronización Directa -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>Conector Directo con Margen App</h3>
+              <p class="text-muted">Envía la lista normalizada con un clic a la base de datos o webhook de Margen.</p>
+            </div>
+          </div>
+          <div class="sync-form">
+            <div class="control-group">
+              <label>URL del Endpoint de Margen App:</label>
+              <input type="text" id="syncUrl" placeholder="https://api.tumargen.com/v1/catalog/import" class="input-text">
+              <small class="text-muted">Si lo dejas en blanco, se ejecutará en <strong>Modo Sandbox Simulado</strong> para validar el payload.</small>
+            </div>
+            <div class="control-group">
+              <label>API Key / Bearer Token:</label>
+              <input type="password" id="syncKey" placeholder="mg_live_xxxxxxxxxxxxxxxx" class="input-text">
+            </div>
+            <div class="control-group">
+              <label>Nombre de la Organización / PyME:</label>
+              <input type="text" id="syncOrg" value="Comercio PyME Demo" class="input-text">
+            </div>
+            <button id="btnTriggerSync" class="btn btn-primary w-full">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+              Sincronizar Productos Procesados Ahora
+            </button>
+            <div id="syncResultBox" class="result-box" style="display:none;"></div>
+          </div>
+        </div>
+
+        <!-- Documentación de Consumo para el Desarrollador de Margen -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>Cómo Consumir Esta API desde la App de Margen</h3>
+              <p class="text-muted">Endpoints listos para ser llamados por el frontend o microservicios de Margen.</p>
+            </div>
+          </div>
+
+          <div class="snippet-tabs">
+            <button class="code-tab-btn active" data-lang="curl">cURL</button>
+            <button class="code-tab-btn" data-lang="js">JavaScript (Node/Fetch)</button>
+            <button class="code-tab-btn" data-lang="python">Python</button>
+          </div>
+
+          <!-- Code Snippets -->
+          <div id="code-curl" class="code-block-wrapper">
+            <pre><code class="code-font"># 1. Enviar Excel para extracción automática y cálculo de márgenes:
+curl -X POST "http://localhost:3000/api/v1/import/excel" \
+  -F "file=@lista_precios.xlsx" \
+  -F "minHealthyMargin=15"
+
+# 2. Enviar texto copiado de WhatsApp:
+curl -X POST "http://localhost:3000/api/v1/import/whatsapp" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Coca Cola 1.5L $1450 (Costo $980) x 24\nYerba 500g $2100 (Costo $1650)",
+    "defaultMarkupPercent": 30
+  }'</code></pre>
+          </div>
+
+          <div id="code-js" class="code-block-wrapper" style="display:none;">
+            <pre><code class="code-font">// Ejemplo de integración en React / Node.js
+async function importarExcelParaMargen(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('minHealthyMargin', '15');
+
+  const res = await fetch('http://localhost:3000/api/v1/import/excel', {
+    method: 'POST',
+    body: formData
+  });
+
+  const { products, summary } = await res.json();
+  console.log('Márgenes calculados:', summary);
+  return products;
+}</code></pre>
+          </div>
+
+          <div id="code-python" class="code-block-wrapper" style="display:none;">
+            <pre><code class="code-font"># Ejemplo de consumo en backend Python / FastAPI de Margen
+import requests
+
+def procesar_excel(filepath):
+    url = "http://localhost:3000/api/v1/import/excel"
+    with open(filepath, "rb") as f:
+        files = {"file": f}
+        data = {"minHealthyMargin": 15}
+        resp = requests.post(url, files=files, data=data)
+        return resp.json()</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Notificaciones Toast -->
+  <div id="toast" class="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
