@@ -760,6 +760,7 @@ body {
 
 /* Helpers */
 .mt-4 { margin-top: 1.5rem; }
+.mb-4 { margin-bottom: 1.5rem; }
 .py-8 { padding-top: 2rem; padding-bottom: 2rem; }
 .text-center { text-align: center; }
 .text-muted { color: var(--text-muted); }

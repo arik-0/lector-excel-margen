@@ -1,0 +1,45 @@
+ID Venta,Fecha venta,Local,Cliente,Tipo item,Categoría,Nombre item,MIN,HORAS,CVU (1 hora),Insumos,Alquiler maquinas,CVT,Cantidad,Precio unitario,Descuento,Total,Prestador,Fecha reserva
+#1001,01/08/2026 09:30,CENTRO MEDICO MODELO,Paciente #101,Servicio,Fisioterapia,Rehabilitación Postural Global,,1.0,12000.00,,,12000.00,1,35000,0,35000,Lic. Gómez,01/08/2026 09:30
+#1002,01/08/2026 11:00,CENTRO MEDICO MODELO,Paciente #102,Servicio,Dermatología,Tratamiento Facial Láser,,0.5,15000.00,,,7500.00,1,65000,10000,55000,Dra. Martínez,01/08/2026 11:00
+#1003,02/08/2026 10:15,CENTRO MEDICO MODELO,Paciente #103,Servicio,Dermatología,Tratamiento Facial Láser,,0.5,15000.00,,,7500.00,1,65000,0,65000,Dra. Martínez,02/08/2026 10:15
+#1004,02/08/2026 15:00,CENTRO MEDICO MODELO,Paciente #104,Servicio,Fisioterapia,Sesión Kinesiología Motora,,0.75,10000.00,,,7500.00,1,28000,3000,25000,Lic. Gómez,02/08/2026 15:00
+#1005,03/08/2026 09:00,CENTRO MEDICO MODELO,Paciente #105,Servicio,Nutrición,Consulta Nutricional y Bioimpedancia,,0.5,8000.00,,,4000.00,1,30000,0,30000,Lic. Rossi,03/08/2026 09:00
+#1006,03/08/2026 14:30,CENTRO MEDICO MODELO,Paciente #106,Servicio,Dermatología,Limpieza Profunda con Punta de Diamante,,1.0,9000.00,,,9000.00,1,38000,5000,33000,Dra. Martínez,03/08/2026 14:30
+#1007,04/08/2026 10:00,CENTRO MEDICO MODELO,Paciente #107,Servicio,Odontología,Blanqueamiento Dental LED,,1.0,18000.00,,,18000.00,1,85000,15000,70000,Dr. Romero,04/08/2026 10:00
+#1008,04/08/2026 16:00,CENTRO MEDICO MODELO,Paciente #108,Servicio,Fisioterapia,Rehabilitación Postural Global,,1.0,12000.00,,,12000.00,1,35000,0,35000,Lic. Gómez,04/08/2026 16:00
+#1009,05/08/2026 11:30,CENTRO MEDICO MODELO,Paciente #109,Servicio,Dermatología,Tratamiento Facial Láser,,0.5,15000.00,,,7500.00,1,65000,0,65000,Dra. Martínez,05/08/2026 11:30
+#1010,05/08/2026 17:00,CENTRO MEDICO MODELO,Paciente #110,Servicio,Cosmetología,Drenaje Linfático Manual,,1.0,8500.00,,,8500.00,1,32000,2000,30000,Lic. Benítez,05/08/2026 17:00
+#1011,06/08/2026 09:30,CENTRO MEDICO MODELO,Paciente #111,Servicio,Odontología,Limpieza Dental y Fluoración,,0.5,9000.00,,,4500.00,1,28000,0,28000,Dr. Romero,06/08/2026 09:30
+#1012,06/08/2026 15:30,CENTRO MEDICO MODELO,Paciente #112,Servicio,Nutrición,Control Nutricional Mensual,,0.5,6000.00,,,3000.00,1,22000,0,22000,Lic. Rossi,06/08/2026 15:30
+#1013,07/08/2026 10:00,CENTRO MEDICO MODELO,Paciente #113,Servicio,Fisioterapia,Sesión Kinesiología Motora,,0.75,10000.00,,,7500.00,1,28000,0,28000,Lic. Gómez,07/08/2026 10:00
+#1014,07/08/2026 14:00,CENTRO MEDICO MODELO,Paciente #114,Servicio,Dermatología,Peeling Químico Renovador,,0.5,11000.00,,,5500.00,1,45000,5000,40000,Dra. Martínez,07/08/2026 14:00
+#1015,08/08/2026 11:00,CENTRO MEDICO MODELO,Paciente #115,Servicio,Cosmetología,Drenaje Linfático Manual,,1.0,8500.00,,,8500.00,1,32000,0,32000,Lic. Benítez,08/08/2026 11:00
+#1016,08/08/2026 16:30,CENTRO MEDICO MODELO,Paciente #116,Servicio,Odontología,Blanqueamiento Dental LED,,1.0,18000.00,,,18000.00,1,85000,10000,75000,Dr. Romero,08/08/2026 16:30
+#1017,10/08/2026 09:00,CENTRO MEDICO MODELO,Paciente #117,Servicio,Fisioterapia,Rehabilitación Postural Global,,1.0,12000.00,,,12000.00,1,35000,5000,30000,Lic. Gómez,10/08/2026 09:00
+#1018,10/08/2026 15:00,CENTRO MEDICO MODELO,Paciente #118,Servicio,Dermatología,Tratamiento Facial Láser,,0.5,15000.00,,,7500.00,1,65000,0,65000,Dra. Martínez,10/08/2026 15:00
+#1019,11/08/2026 11:00,CENTRO MEDICO MODELO,Paciente #119,Servicio,Nutrición,Consulta Nutricional y Bioimpedancia,,0.5,8000.00,,,4000.00,1,30000,0,30000,Lic. Rossi,11/08/2026 11:00
+#1020,11/08/2026 16:00,CENTRO MEDICO MODELO,Paciente #120,Servicio,Dermatología,Limpieza Profunda con Punta de Diamante,,1.0,9000.00,,,9000.00,1,38000,0,38000,Dra. Martínez,11/08/2026 16:00
+#1021,12/08/2026 10:30,CENTRO MEDICO MODELO,Paciente #121,Servicio,Cosmetología,Drenaje Linfático Manual,,1.0,8500.00,,,8500.00,1,32000,0,32000,Lic. Benítez,12/08/2026 10:30
+#1022,12/08/2026 14:00,CENTRO MEDICO MODELO,Paciente #122,Servicio,Odontología,Limpieza Dental y Fluoración,,0.5,9000.00,,,4500.00,1,28000,0,28000,Dr. Romero,12/08/2026 14:00
+#1023,13/08/2026 11:15,CENTRO MEDICO MODELO,Paciente #123,Servicio,Fisioterapia,Sesión Kinesiología Motora,,0.75,10000.00,,,7500.00,1,28000,0,28000,Lic. Gómez,13/08/2026 11:15
+#1024,13/08/2026 17:00,CENTRO MEDICO MODELO,Paciente #124,Servicio,Dermatología,Peeling Químico Renovador,,0.5,11000.00,,,5500.00,1,45000,0,45000,Dra. Martínez,13/08/2026 17:00
+#1025,14/08/2026 09:30,CENTRO MEDICO MODELO,Paciente #125,Servicio,Nutrición,Control Nutricional Mensual,,0.5,6000.00,,,3000.00,1,22000,0,22000,Lic. Rossi,14/08/2026 09:30
+#1026,14/08/2026 15:30,CENTRO MEDICO MODELO,Paciente #126,Servicio,Dermatología,Tratamiento Facial Láser,,0.5,15000.00,,,7500.00,1,65000,10000,55000,Dra. Martínez,14/08/2026 15:30
+#1027,15/08/2026 10:00,CENTRO MEDICO MODELO,Paciente #127,Servicio,Odontología,Blanqueamiento Dental LED,,1.0,18000.00,,,18000.00,1,85000,0,85000,Dr. Romero,15/08/2026 10:00
+#1028,15/08/2026 14:30,CENTRO MEDICO MODELO,Paciente #128,Servicio,Fisioterapia,Rehabilitación Postural Global,,1.0,12000.00,,,12000.00,1,35000,0,35000,Lic. Gómez,15/08/2026 14:30
+#1029,18/08/2026 09:00,CENTRO MEDICO MODELO,Paciente #129,Servicio,Cosmetología,Drenaje Linfático Manual,,1.0,8500.00,,,8500.00,1,32000,4000,28000,Lic. Benítez,18/08/2026 09:00
+#1030,18/08/2026 15:00,CENTRO MEDICO MODELO,Paciente #130,Servicio,Dermatología,Limpieza Profunda con Punta de Diamante,,1.0,9000.00,,,9000.00,1,38000,0,38000,Dra. Martínez,18/08/2026 15:00
+
+Resumen Flujo de Egresos
+Fecha,Nro Comprobante,Flujo del periodo (-)
+01/08/2026,Alquiler Consultorio Central,-450000
+03/08/2026,Insumos Médicos y Descartables Descartables SA,-85000
+05/08/2026,Alquiler Aparatología Láser Médico,-180000
+10/08/2026,Honorarios Profesionales Lic Gómez,-120000
+12/08/2026,Honorarios Profesionales Dra Martínez,-190000
+15/08/2026,Servicio de Limpieza y Desinfección,-60000
+18/08/2026,Software Gestión de Turnos y Licencias,-35000
+20/08/2026,Servicios Públicos Luz y Agua,-45000
+25/08/2026,Material Odontológico Insumos Dentales,-75000
+28/08/2026,Honorarios Profesionales Dr Romero,-140000
+30/08/2026,Gastos Administrativos y Bancarios,-28000

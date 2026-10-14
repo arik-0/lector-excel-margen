@@ -4,3 +4,11 @@ node_modules/
 Thumbs.db
 .vercel/
 *.log
+
+# Archivos y exportaciones privadas de clientes
+*praga*
+*cliente*
+*.private.*
+*agenda*
+uploads/
+temp/

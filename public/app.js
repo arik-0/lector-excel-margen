@@ -1,5 +1,6 @@
 /**
  * Margen DataBridge - Frontend Controller
+ * Con soporte para Listas de Precios estándar y Reportes Multisección (AgendaPro / Servicios + Egresos)
  */
 
 // Estado global de la aplicación
@@ -7,6 +8,10 @@ const state = {
   currentFile: null,
   excelData: null,
   products: [],
+  expenses: [],
+  pAndLSummary: null,
+  isMultiSection: false,
+  currentViewMode: 'services', // 'services' | 'expenses' | 'pl'
   summary: null,
   activeFilter: 'ALL',
   searchQuery: ''
@@ -102,7 +107,7 @@ function initDropzone() {
   });
 }
 
-// Subir y Procesar Archivo Excel
+// Subir y Procesar Archivo Excel / CSV
 async function handleFileUpload(file, customMapping = null) {
   state.currentFile = file;
   const formData = new FormData();
@@ -134,7 +139,10 @@ async function handleFileUpload(file, customMapping = null) {
     }
 
     state.excelData = data;
-    state.products = data.products;
+    state.products = data.products || [];
+    state.expenses = data.expenses || [];
+    state.pAndLSummary = data.pAndLSummary || null;
+    state.isMultiSection = Boolean(data.isMultiSection);
     state.summary = data.summary;
 
     // Configurar selector de hojas si hay múltiples
@@ -149,9 +157,20 @@ async function handleFileUpload(file, customMapping = null) {
       select.onchange = () => handleFileUpload(state.currentFile);
     }
 
-    renderColumnMapping(data.headers, data.mapping);
+    if (data.headers && data.mapping && !state.isMultiSection) {
+      renderColumnMapping(data.headers, data.mapping);
+    } else {
+      const mappingSection = document.getElementById('mappingSection');
+      if (mappingSection) mappingSection.style.display = 'none';
+    }
+
     updateDashboard();
-    showToast(`✅ Se extrajeron ${data.products.length} productos con éxito.`);
+
+    if (state.isMultiSection) {
+      showToast(`✅ Reporte multisección consolidado: ${state.products.length} servicios y ${state.expenses.length} egresos.`);
+    } else {
+      showToast(`✅ Se extrajeron ${data.products.length} productos con éxito.`);
+    }
 
     // Cambiar a la pestaña de tablero automáticamente
     document.querySelector('[data-tab="tab-dashboard"]').click();
@@ -252,7 +271,10 @@ function initWhatsApp() {
         throw new Error(data.error || 'Error al procesar el texto');
       }
 
+      state.isMultiSection = false;
       state.products = data.products;
+      state.expenses = [];
+      state.pAndLSummary = null;
       state.summary = data.summary;
       updateDashboard();
       showToast(`✅ Se detectaron ${data.products.length} productos del chat.`);
@@ -265,38 +287,58 @@ function initWhatsApp() {
   });
 }
 
-// Cargar Caso Real Demo (Botón rápido superior)
-async function initQuickDemo() {
-  const btn = document.getElementById('btnQuickSample');
-  btn.addEventListener('click', async () => {
-    try {
-      showToast('Cargando planilla real de ejemplo...');
-      const response = await fetch('/samples/ejemplo_lista_precios_pyme.xlsx');
-      const blob = await response.blob();
-      const file = new File([blob], 'ejemplo_lista_precios_pyme.xlsx', { type: blob.type });
-      handleFileUpload(file);
-    } catch (e) {
-      console.error(e);
-      showToast('No se pudo cargar el archivo demo.', 'danger');
-    }
-  });
+// Cargar Demos Rápidas
+function initQuickDemo() {
+  // Demo 1: Archivo Multisección Demo (Servicios y Flujo de Egresos)
+  const btnReal = document.getElementById('btnRealClientSample');
+  if (btnReal) {
+    btnReal.addEventListener('click', async () => {
+      try {
+        showToast('Cargando reporte multisección de ejemplo (Servicios + Egresos)...');
+        const response = await fetch('/samples/ejemplo_multiseccion_clinica_demo.csv');
+        const blob = await response.blob();
+        const file = new File([blob], 'ejemplo_multiseccion_clinica_demo.csv', { type: 'text/csv' });
+        handleFileUpload(file);
+      } catch (e) {
+        console.error(e);
+        showToast('No se pudo cargar el archivo demo multisección.', 'danger');
+      }
+    });
+  }
+
+  // Demo 2: Planilla Excel de Distribuidora Mayorista
+  const btnQuick = document.getElementById('btnQuickSample');
+  if (btnQuick) {
+    btnQuick.addEventListener('click', async () => {
+      try {
+        showToast('Cargando planilla real de Distribuidora Mayorista...');
+        const response = await fetch('/samples/ejemplo_lista_precios_pyme.xlsx');
+        const blob = await response.blob();
+        const file = new File([blob], 'ejemplo_lista_precios_pyme.xlsx', { type: blob.type });
+        handleFileUpload(file);
+      } catch (e) {
+        console.error(e);
+        showToast('No se pudo cargar el archivo demo de distribuidora.', 'danger');
+      }
+    });
+  }
 }
 
 // Actualizar Dashboard & Métricas de Margen
 function updateDashboard() {
-  const { summary, products } = state;
+  const { summary, products, pAndLSummary, isMultiSection, expenses } = state;
   if (!summary) return;
 
-  // Contador en la pestaña
+  // Contador en la pestaña principal
   document.getElementById('tabProductCountBadge').textContent = products.length;
 
   // KPIs
-  document.getElementById('kpiTotalProducts').textContent = summary.totalProducts;
-  document.getElementById('kpiTotalUnits').textContent = `${summary.totalStockUnits} unidades en stock`;
+  document.getElementById('kpiTotalProducts').textContent = products.length;
+  document.getElementById('kpiTotalUnits').textContent = `${summary.totalStockUnits} unidades / sesiones`;
   document.getElementById('kpiAvgMargin').textContent = `${summary.averageMarginPercentage.toFixed(1)}%`;
   document.getElementById('kpiAvgMarkup').textContent = `Markup prom: ${summary.averageMarkupPercentage.toFixed(1)}%`;
   document.getElementById('kpiCapitalLocked').textContent = formatMoney(summary.totalCapitalInStock);
-  document.getElementById('kpiPotentialRevenue').textContent = `Venta pot: ${formatMoney(summary.totalPotentialRevenue)}`;
+  document.getElementById('kpiPotentialRevenue').textContent = `Facturación: ${formatMoney(summary.totalPotentialRevenue)}`;
   document.getElementById('kpiLossCount').textContent = summary.lossCount;
   document.getElementById('kpiCriticalCount').textContent = summary.criticalCount;
 
@@ -305,6 +347,38 @@ function updateDashboard() {
   document.getElementById('countLoss').textContent = summary.lossCount;
   document.getElementById('countCritical').textContent = summary.criticalCount;
   document.getElementById('countHealthy').textContent = summary.healthyCount;
+
+  // Banner y Selector P&L para reportes multisección
+  const pAndLBanner = document.getElementById('pAndLBanner');
+  const viewModeSelector = document.getElementById('viewModeSelector');
+
+  if (isMultiSection && pAndLSummary) {
+    pAndLBanner.style.display = 'block';
+    viewModeSelector.style.display = 'flex';
+
+    document.getElementById('countServicesView').textContent = products.length;
+    document.getElementById('countExpensesView').textContent = expenses.length;
+
+    // Valores en el banner de P&L
+    document.getElementById('pAndLNetAmount').textContent = formatMoney(pAndLSummary.netOperatingIncome);
+    document.getElementById('pAndLNetPct').textContent = `Margen Neto Real: ${pAndLSummary.netMarginPct}%`;
+    document.getElementById('pAndLNetAmount').style.color = pAndLSummary.netOperatingIncome >= 0 ? 'var(--primary)' : 'var(--danger)';
+
+    document.getElementById('plNetRevenue').textContent = formatMoney(pAndLSummary.netRevenue);
+    document.getElementById('plGrossSub').textContent = `Bruta: ${formatMoney(pAndLSummary.grossRevenue)} | Desc: -${formatMoney(pAndLSummary.discounts)}`;
+
+    document.getElementById('plVarCosts').textContent = `-${formatMoney(pAndLSummary.totalVariableCosts)}`;
+    document.getElementById('plVarCostsSub').textContent = `CVT directo: ${formatMoney(pAndLSummary.directVariableCost)} + Op: ${formatMoney(pAndLSummary.operationalVariableCosts)}`;
+
+    document.getElementById('plContribMargin').textContent = formatMoney(pAndLSummary.contributionMargin);
+    document.getElementById('plContribMarginPct').textContent = `${pAndLSummary.contributionMarginPct}% s/ facturación neta`;
+
+    document.getElementById('plFixedCosts').textContent = `-${formatMoney(pAndLSummary.totalFixedCosts)}`;
+  } else {
+    pAndLBanner.style.display = 'none';
+    viewModeSelector.style.display = 'none';
+    switchViewMode('services');
+  }
 
   // Banner de alerta de pérdida
   const alertLoss = document.getElementById('alertLossContainer');
@@ -316,10 +390,41 @@ function updateDashboard() {
     alertLoss.style.display = 'none';
   }
 
-  renderProductsTable();
+  renderCurrentView();
 }
 
-// Renderizar Tabla de Productos
+// Selector de vista actual (Servicios vs Egresos vs P&L)
+function switchViewMode(mode) {
+  state.currentViewMode = mode;
+
+  document.querySelectorAll('#viewModeSelector .pill-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-view') === mode);
+  });
+
+  const servicesContainer = document.getElementById('servicesViewContainer');
+  const expensesContainer = document.getElementById('expensesViewContainer');
+  const plContainer = document.getElementById('plViewContainer');
+  const toolbar = document.getElementById('servicesToolbar');
+
+  servicesContainer.style.display = mode === 'services' ? 'block' : 'none';
+  expensesContainer.style.display = mode === 'expenses' ? 'block' : 'none';
+  plContainer.style.display = mode === 'pl' ? 'block' : 'none';
+  toolbar.style.display = mode === 'services' ? 'flex' : 'none';
+
+  renderCurrentView();
+}
+
+function renderCurrentView() {
+  if (state.currentViewMode === 'services') {
+    renderProductsTable();
+  } else if (state.currentViewMode === 'expenses') {
+    renderExpensesTable();
+  } else if (state.currentViewMode === 'pl') {
+    renderPLTable();
+  }
+}
+
+// Renderizar Tabla de Productos / Servicios
 function renderProductsTable() {
   const tbody = document.getElementById('productsTableBody');
   const { products, activeFilter, searchQuery } = state;
@@ -337,12 +442,10 @@ function renderProductsTable() {
 
   // Filtrado
   const filtered = products.filter(p => {
-    // Filtro por estado
     if (activeFilter === 'LOSS' && p.status !== 'LOSS') return false;
     if (activeFilter === 'CRITICAL' && p.status !== 'CRITICAL') return false;
     if (activeFilter === 'HEALTHY' && (p.status !== 'HEALTHY' && p.status !== 'EXCELLENT')) return false;
 
-    // Búsqueda textual
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       const matchName = (p.name || '').toLowerCase().includes(q);
@@ -357,7 +460,7 @@ function renderProductsTable() {
     tbody.innerHTML = `
       <tr>
         <td colspan="11" class="text-center py-8 text-muted">
-          No se encontraron productos con el filtro o búsqueda seleccionada.
+          No se encontraron productos o servicios con el filtro seleccionado.
         </td>
       </tr>
     `;
@@ -378,11 +481,18 @@ function renderProductsTable() {
       badgeClass = 'badge-excellent';
     }
 
+    const durationDisplay = p.durationHours ? `${p.durationHours} hs` : '-';
+    const totalBilled = p.totalRevenue || (p.salePrice * p.stock);
+
     return `
       <tr class="${rowClass}">
         <td><code class="code-font">${p.sku || '-'}</code></td>
-        <td style="font-weight:600; max-width: 250px; overflow: hidden; text-overflow: ellipsis;">${p.name}</td>
+        <td style="font-weight:600; max-width: 250px; overflow: hidden; text-overflow: ellipsis;">
+          ${p.name}
+          ${Array.isArray(p.providers) && p.providers.length ? `<br><small class="text-muted">Por: ${p.providers.join(', ')}</small>` : ''}
+        </td>
         <td><span class="text-muted">${p.category || 'General'}</span></td>
+        <td><span class="code-font">${durationDisplay}</span></td>
         <td>
           <input type="number" step="0.01" class="input-number table-inline-input" 
             value="${p.costPrice}" 
@@ -401,14 +511,13 @@ function renderProductsTable() {
         <td style="font-weight:700; ${p.marginPercentage < 0 ? 'color:var(--danger)' : (p.marginPercentage < 15 ? 'color:var(--warning)' : 'color:var(--primary)')}">
           ${p.marginPercentage.toFixed(1)}%
         </td>
-        <td>${p.markupPercentage.toFixed(1)}%</td>
         <td>
           <input type="number" class="input-number table-inline-input" style="width: 70px"
             value="${p.stock}" 
             data-id="${p.id}" 
             data-field="stock">
         </td>
-        <td>${formatMoney(p.stockValueCost)}</td>
+        <td style="font-weight:600;">${formatMoney(totalBilled)}</td>
         <td>
           <span class="badge-status ${badgeClass}">
             ${p.statusLabel}
@@ -428,11 +537,75 @@ function renderProductsTable() {
       const prod = state.products.find(p => p.id === id);
       if (prod) {
         prod[field] = newVal;
-        // Recalcular métricas
         await recalculateProducts();
       }
     });
   });
+}
+
+// Renderizar Tabla de Egresos Clasificados
+function renderExpensesTable() {
+  const tbody = document.getElementById('expensesTableBody');
+  const { expenses } = state;
+
+  if (!expenses || expenses.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-muted">No hay egresos registrados.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = expenses.map(e => {
+    const isFixed = e.isFixed;
+    return `
+      <tr>
+        <td><code class="code-font">${e.id}</code></td>
+        <td>${e.date || '-'}</td>
+        <td style="font-weight:600;">${e.concept}</td>
+        <td>
+          <span class="badge-status ${isFixed ? 'badge-critical' : 'badge-healthy'}">
+            ${isFixed ? 'COSTO FIJO' : 'COSTO VARIABLE'}
+          </span>
+        </td>
+        <td><span class="text-muted">${e.category}</span></td>
+        <td><small class="text-muted">${e.paymentMethod}</small></td>
+        <td style="text-align:right; font-weight:700; font-family:var(--font-mono); color:var(--danger);">
+          -${formatMoney(e.amount)}
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// Renderizar Tabla de Estado de Resultados (P&L Detallado)
+function renderPLTable() {
+  const tbody = document.getElementById('plTableBody');
+  const { pAndLSummary } = state;
+
+  if (!pAndLSummary) {
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-muted">No hay datos de P&L disponibles.</td></tr>`;
+    return;
+  }
+
+  const rows = [
+    { title: '(+) Facturación Bruta Total', amount: pAndLSummary.grossRevenue, pct: '-', desc: 'Suma total de servicios agendados a precio de lista.', color: '' },
+    { title: '(-) Descuentos Comerciales y Bonificaciones', amount: -pAndLSummary.discounts, pct: '-', desc: 'Promociones, convenios y descuentos otorgados.', color: 'text-red' },
+    { title: '(=) FACTURACIÓN NETA REAL COBRADA', amount: pAndLSummary.netRevenue, pct: '100.0%', desc: 'Plata real que ingresa al negocio por ventas.', color: 'text-green', isHeader: true },
+    { title: '(-) Costos Variables Directos (CVT de prestaciones)', amount: -pAndLSummary.directVariableCost, pct: ((pAndLSummary.directVariableCost / pAndLSummary.netRevenue) * 100).toFixed(1) + '%', desc: 'Costo variable unitario aplicado a cada hora de servicio brindado.', color: 'text-red' },
+    { title: '(-) Costos Variables Operativos (Insumos + Alquiler de Máquinas + Honorarios)', amount: -pAndLSummary.operationalVariableCosts, pct: ((pAndLSummary.operationalVariableCosts / pAndLSummary.netRevenue) * 100).toFixed(1) + '%', desc: 'Alquiler de equipos (Soprano, Venus, etc.), horas de prestadores e insumos de tratamiento.', color: 'text-red' },
+    { title: '(=) MARGEN DE CONTRIBUCIÓN TOTAL', amount: pAndLSummary.contributionMargin, pct: pAndLSummary.contributionMarginPct + '%', desc: 'Dinero disponible para cubrir los costos fijos y generar ganancia.', color: 'text-green', isHeader: true },
+    { title: '(-) Costos Fijos Totales (Alquiler local + Sueldos base + Marketing + ERP)', amount: -pAndLSummary.totalFixedCosts, pct: ((pAndLSummary.totalFixedCosts / pAndLSummary.netRevenue) * 100).toFixed(1) + '%', desc: 'Estructura fija mensual que se paga independientemente del volumen de clientes.', color: 'text-yellow' },
+    { title: '(=) RESULTADO OPERATIVO NETO REAL (EBITDA / GANANCIA)', amount: pAndLSummary.netOperatingIncome, pct: pAndLSummary.netMarginPct + '%', desc: 'Lo que realmente le queda al dueño al final del mes. Revela si facturar más significó ganar más.', color: pAndLSummary.netOperatingIncome >= 0 ? 'text-green' : 'text-red', isHighlight: true }
+  ];
+
+  tbody.innerHTML = rows.map(r => {
+    return `
+      <tr style="${r.isHeader ? 'background:rgba(255,255,255,0.03); font-weight:700;' : ''} ${r.isHighlight ? 'background:rgba(16,185,129,0.08); font-weight:800;' : ''}">
+        <td><strong>${r.title}</strong></td>
+        <td style="text-align:right; font-family:var(--font-mono); font-size:1rem;" class="${r.color}">${formatMoney(r.amount)}</td>
+        <td style="text-align:right; font-family:var(--font-mono);">${r.pct}</td>
+        <td><small class="text-muted">${r.desc}</small></td>
+      </tr>
+    `;
+  }).join('');
 }
 
 // Recalcular productos en el backend al modificar valores
@@ -458,7 +631,15 @@ async function recalculateProducts() {
 
 // Inicialización de Filtros y Búsqueda
 function initFiltersAndActions() {
-  const pills = document.querySelectorAll('.pill-btn');
+  // Selector de sub-vistas (Servicios vs Egresos vs P&L)
+  document.querySelectorAll('#viewModeSelector .pill-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.getAttribute('data-view');
+      switchViewMode(mode);
+    });
+  });
+
+  const pills = document.querySelectorAll('#servicesToolbar .pill-btn');
   pills.forEach(pill => {
     pill.addEventListener('click', () => {
       pills.forEach(p => p.classList.remove('active'));
@@ -474,7 +655,7 @@ function initFiltersAndActions() {
     renderProductsTable();
   });
 
-  // Exportar Excel Limpio
+  // Exportar Excel Limpio (Con hojas múltiples si es multisección)
   document.getElementById('btnExportExcel').addEventListener('click', async () => {
     if (!state.products || state.products.length === 0) {
       showToast('No hay productos para exportar.', 'warning');
@@ -482,29 +663,33 @@ function initFiltersAndActions() {
     }
 
     try {
-      showToast('Generando Excel limpio de Margen...');
+      showToast('Generando Excel normalizado con hojas de Servicios, Egresos y P&L...');
       const res = await fetch('/api/v1/products/export-excel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ products: state.products })
+        body: JSON.stringify({
+          products: state.products,
+          expenses: state.expenses,
+          pAndLSummary: state.pAndLSummary
+        })
       });
 
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'catalogo_margen_gestion.xlsx';
+      a.download = 'catalogo_margen_gestion_completo.xlsx';
       document.body.appendChild(a);
       a.click();
       a.remove();
-      showToast('✅ Excel descargado correctamente.');
+      showToast('✅ Excel descargado correctamente con todas las hojas.');
     } catch (e) {
       console.error(e);
       showToast('Error al exportar Excel.', 'danger');
     }
   });
 
-  // Copiar JSON para la app de Margen
+  // Copiar JSON compatible con Margen App
   document.getElementById('btnCopyJson').addEventListener('click', async () => {
     if (!state.products || state.products.length === 0) {
       showToast('No hay productos cargados.', 'warning');
@@ -512,18 +697,27 @@ function initFiltersAndActions() {
     }
 
     try {
-      const res = await fetch('/api/v1/products/format-margen', {
+      let endpoint = '/api/v1/products/format-margen';
+      let reqBody = { products: state.products, metadata: { organization: 'Mi PyME', currency: 'ARS' } };
+
+      if (state.isMultiSection) {
+        endpoint = '/api/v1/products/format-margen-repo';
+        reqBody = {
+          products: state.products,
+          expenses: state.expenses,
+          pAndLSummary: state.pAndLSummary
+        };
+      }
+
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          products: state.products,
-          metadata: { organization: 'Mi PyME', currency: 'ARS' }
-        })
+        body: JSON.stringify(reqBody)
       });
 
       const data = await res.json();
-      await navigator.clipboard.writeText(JSON.stringify(data.data, null, 2));
-      showToast('✅ Payload JSON copiado al portapapeles!');
+      await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+      showToast('✅ Payload JSON formateado para Margen copiado al portapapeles!');
     } catch (e) {
       console.error(e);
       showToast('Error al copiar JSON.', 'danger');
@@ -542,7 +736,7 @@ function initFiltersAndActions() {
     const organization = document.getElementById('syncOrg').value.trim();
     const resultBox = document.getElementById('syncResultBox');
 
-    showToast('Enviando productos a Margen App...');
+    showToast('Enviando datos a Margen App...');
     resultBox.style.display = 'block';
     resultBox.textContent = 'Enviando petición...';
 
@@ -552,6 +746,8 @@ function initFiltersAndActions() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           products: state.products,
+          expenses: state.expenses,
+          pAndLSummary: state.pAndLSummary,
           targetApiUrl,
           apiKey,
           organization

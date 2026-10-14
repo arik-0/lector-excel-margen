@@ -88,4 +88,24 @@ router.post('/format-margen', (req, res) => {
   }
 });
 
+/**
+ * POST /api/v1/products/format-margen-repo
+ * Devuelve el payload en el formato nativo exacto de renzokob/Margen (importReview.js / ImportModal.jsx)
+ */
+router.post('/format-margen-repo', (req, res) => {
+  try {
+    const { products, expenses, pAndLSummary } = req.body;
+    const { formatForMargenImportRepo } = require('../services/multiSectionParser');
+    const result = formatForMargenImportRepo({
+      products: products || [],
+      expenses: expenses || [],
+      pAndLSummary: pAndLSummary || {}
+    });
+    return res.json(result);
+  } catch (error) {
+    console.error('Error formateando para Margen Repo:', error);
+    return res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
 module.exports = router;

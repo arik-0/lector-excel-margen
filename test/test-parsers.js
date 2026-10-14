@@ -64,4 +64,34 @@ try {
   process.exit(1);
 }
 
+// TEST 3: Multi-Section Report (Servicios + Egresos + P&L)
+try {
+  console.log('\n--- 3. TEST MULTI-SECTION DEMO REPORT ---');
+  const agendaPath = path.join(__dirname, '..', 'public', 'samples', 'ejemplo_multiseccion_clinica_demo.csv');
+  const buffer = fs.readFileSync(agendaPath);
+  const agendaResult = parseExcelBuffer(buffer);
+
+  console.log('Es multisección:', agendaResult.isMultiSection);
+  console.log('Servicios consolidados:', agendaResult.products.length);
+  console.log('Egresos clasificados:', agendaResult.expenses.length);
+  console.log('Facturación Neta ($):', agendaResult.pAndLSummary.netRevenue);
+  console.log('Margen de Contribución ($):', agendaResult.pAndLSummary.contributionMargin);
+  console.log('Resultado Operativo Neto (EBITDA $):', agendaResult.pAndLSummary.netOperatingIncome);
+  console.log('Margen Neto %:', agendaResult.pAndLSummary.netMarginPct + '%');
+
+  if (!agendaResult.isMultiSection) {
+    throw new Error('Fallo: Debería detectar que es un reporte multisección');
+  }
+  if (agendaResult.products.length < 5) {
+    throw new Error(`Fallo: Se esperaban servicios consolidados, se obtuvieron ${agendaResult.products.length}`);
+  }
+  if (agendaResult.expenses.length < 5) {
+    throw new Error(`Fallo: Se esperaban egresos clasificados, se obtuvieron ${agendaResult.expenses.length}`);
+  }
+  console.log('✅ TEST MULTISECCIÓN SINTÉTICO: PASÓ con éxito.');
+} catch (e) {
+  console.error('❌ Error en Test Multisección:', e);
+  process.exit(1);
+}
+
 console.log('\n🎉 ¡TODOS LOS TESTS DE PARSEO Y FINANZAS PASARON EXITOSAMENTE!');

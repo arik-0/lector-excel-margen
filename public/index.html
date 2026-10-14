@@ -26,9 +26,13 @@
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
         Swagger API Docs
       </a>
-      <button id="btnQuickSample" class="btn btn-primary btn-sm">
+      <button id="btnRealClientSample" class="btn btn-primary btn-sm" style="background: linear-gradient(135deg, #10b981 0%, #047857 100%);">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        Demo Multisección (Servicios + P&L)
+      </button>
+      <button id="btnQuickSample" class="btn btn-secondary btn-sm">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-        Cargar Caso Real Demo
+        Demo Distribuidora (Excel)
       </button>
     </div>
   </header>
@@ -192,8 +196,53 @@
         </div>
       </div>
 
+      <!-- Banner Especial P&L para Reportes Completos de Gestión (AgendaPro / Servicios + Egresos) -->
+      <div id="pAndLBanner" class="card mb-4" style="display:none; border-color: rgba(16, 185, 129, 0.4); background: linear-gradient(180deg, rgba(16, 185, 129, 0.05) 0%, var(--bg-card) 100%);">
+        <div class="card-header">
+          <div>
+            <span class="badge-sub">Diagnóstico Financiero Margen</span>
+            <h3 style="margin-top:0.3rem;">Estado de Resultados & Rentabilidad Real del Período</h3>
+            <p class="text-muted" id="pAndLOrgSubtitle">Consolidación automática de ventas, insumos, alquileres de equipos, sueldos y costos fijos.</p>
+          </div>
+          <div class="p-l-net-badge" id="pAndLNetBadge" style="text-align: right; background: rgba(15, 23, 42, 0.7); padding: 0.75rem 1.25rem; border-radius: 10px; border: 1px solid var(--border-color);">
+            <div style="font-size:0.8rem; color:var(--text-muted);">Ganancia Operativa Real (EBITDA)</div>
+            <div style="font-size:1.6rem; font-weight:800; font-family:var(--font-mono);" id="pAndLNetAmount">$ 0</div>
+            <div style="font-size:0.82rem; font-weight:700;" id="pAndLNetPct">Margen Neto: 0%</div>
+          </div>
+        </div>
+        <div class="kpi-grid" style="margin-bottom:0;">
+          <div class="kpi-card" style="padding:1rem;">
+            <div class="kpi-label">(+) Facturación Neta</div>
+            <div class="kpi-value" id="plNetRevenue">$ 0</div>
+            <div class="kpi-sub" id="plGrossSub">Bruta: $0 | Desc: -$0</div>
+          </div>
+          <div class="kpi-card highlight-red" style="padding:1rem;">
+            <div class="kpi-label">(-) Costos Variables Totales</div>
+            <div class="kpi-value text-red" id="plVarCosts">-$ 0</div>
+            <div class="kpi-sub" id="plVarCostsSub">CVT + Insumos + Alquileres de equipos</div>
+          </div>
+          <div class="kpi-card highlight-green" style="padding:1rem;">
+            <div class="kpi-label">(=) Margen de Contribución</div>
+            <div class="kpi-value text-green" id="plContribMargin">$ 0</div>
+            <div class="kpi-sub text-green" id="plContribMarginPct">0% sobre ventas</div>
+          </div>
+          <div class="kpi-card highlight-yellow" style="padding:1rem;">
+            <div class="kpi-label">(-) Costos Fijos Totales</div>
+            <div class="kpi-value text-yellow" id="plFixedCosts">-$ 0</div>
+            <div class="kpi-sub">Alquiler local + Sueldos + Marketing + ERP</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selector de Sub-vistas (Aparece en reportes multisección) -->
+      <div id="viewModeSelector" class="filter-pills" style="display:none; margin-bottom: 1.25rem;">
+        <button class="pill-btn active" data-view="services">📋 Catálogo de Servicios y Márgenes (<span id="countServicesView">0</span>)</button>
+        <button class="pill-btn" data-view="expenses">💸 Egresos Clasificados (<span id="countExpensesView">0</span>)</button>
+        <button class="pill-btn" data-view="pl">📊 Estado de Resultados (P&L Detallado)</button>
+      </div>
+
       <!-- Barra de herramientas de la tabla -->
-      <div class="table-toolbar">
+      <div class="table-toolbar" id="servicesToolbar">
         <div class="search-box">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <input type="text" id="searchInput" placeholder="Buscar por producto, código o categoría...">
@@ -218,32 +267,73 @@
         </div>
       </div>
 
-      <!-- Tabla de Productos con Cálculo en Vivo -->
-      <div class="table-responsive">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Código</th>
-              <th>Descripción</th>
-              <th>Rubro</th>
-              <th>Costo ($)</th>
-              <th>P. Venta ($)</th>
-              <th>Margen ($)</th>
-              <th>% Margen</th>
-              <th>% Markup</th>
-              <th>Stock</th>
-              <th>Capital ($)</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody id="productsTableBody">
-            <tr>
-              <td colspan="11" class="text-center py-8 text-muted">
-                No hay productos cargados aún. Carga un Excel o pega un mensaje de WhatsApp para comenzar.
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- VISTA 1: TABLA DE SERVICIOS / PRODUCTOS -->
+      <div id="servicesViewContainer">
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Descripción / Servicio</th>
+                <th>Rubro</th>
+                <th>Duración</th>
+                <th>Costo ($)</th>
+                <th>P. Venta ($)</th>
+                <th>Margen ($)</th>
+                <th>% Margen</th>
+                <th>Unidades</th>
+                <th>Total Facturado</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="productsTableBody">
+              <tr>
+                <td colspan="11" class="text-center py-8 text-muted">
+                  No hay productos cargados aún. Carga un Excel o pega un mensaje de WhatsApp para comenzar.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- VISTA 2: TABLA DE EGRESOS CLASIFICADOS -->
+      <div id="expensesViewContainer" style="display:none;">
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Concepto / Detalle</th>
+                <th>Clasificación Margen</th>
+                <th>Categoría</th>
+                <th>Medio de Pago</th>
+                <th style="text-align:right;">Importe ($)</th>
+              </tr>
+            </thead>
+            <tbody id="expensesTableBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- VISTA 3: ESTADO DE RESULTADOS DETALLADO (P&L) -->
+      <div id="plViewContainer" style="display:none;">
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Línea de Gestión Financiera</th>
+                <th style="text-align:right;">Monto del Período ($)</th>
+                <th style="text-align:right;">% s/ Facturación Neta</th>
+                <th>Cálculo & Regla de Negocio</th>
+              </tr>
+            </thead>
+            <tbody id="plTableBody">
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
